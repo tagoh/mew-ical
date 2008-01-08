@@ -1,0 +1,37 @@
+mew-ical.el
+==============
+mew-ical enables iCalendar support on Mew, Mail User Agent running on Emacsen.
+
+Features
+===========
+
+ - Display a detail in iCalendar at the message buffer.
+ - Have a UI to accept/decline an request on the message buffer.
+ - Register a iCalendar to your external calendar.
+   (need a iTIP support on the server side)
+ - Reply a mail to the requester with your ACK/NACK.
+
+Requirements for working
+===========================
+
+ - Emacsen
+ - Mew
+ - curl
+
+How to setup
+===============
+You need to have the following elisp code at least to get this working.
+
+(eval-after-load "mew"
+  '(progn
+     (require 'mew-ical)
+     (setq mew-ical-server-uri "http://server.name/path/to/put/ical/")
+     (setq mew-ical-home-uri "http://server.name/for/ical")
+     (setq mew-ical-user "user"))) ;; if any authentication is required to put ical
+
+If you want to look at iCalendar prior to other messages in
+the multipart body, you may want to add:
+
+(setq mew-mime-multipart-alternative-list '("Text/Calendar" "Text/Plain"))
+
+or something like that.
