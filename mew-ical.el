@@ -313,12 +313,13 @@
 		   (match-string 1 calparam)
 		 nil))
 	   (status (if (and calparam
-			    (string-match "PARTSTAT=\\(.*\\)[:;]?" calparam))
+			    (string-match "PARTSTAT=\\([^:;]+\\)[:;]?" calparam))
 		       (match-string 1 calparam)
 		     nil)))
       `((,sym . ,`((email ,caladdr)
 		   (param ((cn ,cn)
-			   (status ,calparam))))))
+			   (status ,status)
+			   (all ,calparam))))))
       ))
    ((string-match (format "^%s:\\(.*@.*\\)" key) line)
     (let* ((caladdr (match-string 1 line))
@@ -376,7 +377,7 @@
 			    (aval (cdr amap)))
 		       (if aval
 			   (progn
-			     (setcdr amap (append aval '(val)))
+			     (setcdr amap (append aval `(,val)))
 			     one)
 			 (append one `((attendees . (,val)))))))
 	  (t (if map
@@ -488,7 +489,17 @@
 			       :type 'mew-ical-open-calendar)
 		(insert "\n\n"))
 	    (if (string= method "CANCEL")
-		(insert "The following apointment has been canceled.\n\n")
+		(progn
+		  (insert "The following apointment has been canceled.\n\n")
+		  (insert-button "SEND"
+				 :type 'mew-ical-cancel
+				 'buffer cache
+				 'begin begin
+				 'end end
+				 'attendance (cdr (assoc 'myattendance event))
+				 'organizer (cdr (assoc 'organizer event))
+				 'summary (cdr (assoc 'summary event)))
+		  (insert "\n\n"))
 	      ))))
       (mew-insert "Subject:\t%s\n" (cdr (assoc 'summary event)))
       (mew-insert "Location:\t%s\n" (cdr (assoc 'location event)))
