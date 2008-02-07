@@ -92,7 +92,7 @@
 (define-button-type 'mew-ical-open-calendar
   'action #'mew-ical-button-handler-open-calendar)
 
-(defun mew-ical-send-ical (organizer summary status file actionfile extraopts)
+(defun mew-ical-send-ical (organizer summary status file actionfile need-reply extraopts)
   (let* ((opts (append extraopts `("-k"
 				   "--data-binary"
 				   ,(concat "@" file)
@@ -109,6 +109,7 @@
 			      `(summary . ,summary)
 			      `(result . t)
 			      `(status . ,status)
+			      `(need-reply . ,need-reply)
 			      `(opts . ,extraopts)))
 	     mew-ical-hash)
     (set-process-filter process 'mew-ical-uploading-filter)
@@ -135,6 +136,7 @@
 	       (request (cdr (assoc 'request alist)))
 	       (reply (cdr (assoc 'reply alist)))
 	       (status (cdr (assoc 'status alist)))
+	       (need-reply (cdr (assoc 'need-reply alist)))
 	       (opts (cdr (assoc 'opts alist))))
 	  (case result
 	    ('permission (message (format "%spermission denied." msg))
@@ -149,6 +151,7 @@
 						   status
 						   request
 						   reply
+						   need-reply
 						   (append opts `("--anyauth"
 								  "--user"
 								  ,(concat mew-ical-user ":" passwd))))
@@ -157,19 +160,20 @@
 	    ('unknown (message (format "%sfailed due to the unknown result." msg)))
 	    (t (message (format "%sdone." msg))
 	       (if reply
-		   (mew-ical-send-ical organizer summary status reply nil opts)
+		   (mew-ical-send-ical organizer summary status reply nil need-reply opts)
 		 ;; all the required operation has been done.
-		 (when (y-or-n-p "Would you like to send an email to the organizer with your reply? ")
-		   (mew-user-agent-compose (mew-ical-print-cal-address organizer)
-					   (concat "Reply for " summary)
-					   `(("body" . ,(concat "I have " status " your appointment.")))
-					   nil
-					   nil
-					   nil
-					   nil)
-		   (mew-draft-prepare-attachments)
-		   (mew-attach-copy request "calendar.ics"))
-		 ))
+		 (if need-reply
+		     (when (y-or-n-p "Would you like to send an email to the organizer with your reply? ")
+		       (mew-user-agent-compose (mew-ical-print-cal-address organizer)
+					       (concat "Reply for " summary)
+					       `(("body" . ,(concat "I have " status " your appointment.")))
+					       nil
+					       nil
+					       nil
+					       nil)
+		       (mew-draft-prepare-attachments)
+		       (mew-attach-copy request "calendar.ics"))
+		   )))
 	    ))
       (message (format "%s%s" msg event)))
     ))
@@ -189,6 +193,7 @@
 	     (afile (if (not (string= (button-get button 'status) "CANCEL"))
 			(mew-make-temp-name)))
 	     (buf (generate-new-buffer " *Mew iCal Response*"))
+	     (need-reply (not afile))
 	     (aalist (button-get button 'attendance))
 	     (oalist (button-get button 'organizer))
 	     (summary (button-get button 'summary))
@@ -227,6 +232,7 @@
 			    status
 			    rfile
 			    afile
+			    need-reply
 			    (if (and mew-ical-user mew-ical-pass)
 				`("--anyauth"
 				  "--user"
