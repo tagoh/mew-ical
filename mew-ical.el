@@ -504,7 +504,7 @@
 	    (if (string= method "CANCEL")
 		(progn
 		  (insert "The following apointment has been canceled.\n\n")
-		  (insert-button "SEND"
+		  (insert-button "Update Calendar"
 				 :type 'mew-ical-cancel
 				 'buffer cache
 				 'begin begin
