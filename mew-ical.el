@@ -487,7 +487,9 @@
 		(insert-button "Open a calendar"
 			       :type 'mew-ical-open-calendar)
 		(insert "\n\n"))
-	    )))
+	    (if (string= method "CANCEL")
+		(insert "The following apointment has been canceled.\n\n")
+	      ))))
       (mew-insert "Subject:\t%s\n" (cdr (assoc 'summary event)))
       (mew-insert "Location:\t%s\n" (cdr (assoc 'location event)))
       (mew-insert "Organizer:\t%s\n"
