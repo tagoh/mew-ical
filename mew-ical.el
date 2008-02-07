@@ -86,6 +86,9 @@
 (define-button-type 'mew-ical-tentative
   :supertype 'mew-ical-master
   'status "TENTATIVE")
+(define-button-type 'mew-ical-cancel
+  :supertype 'mew-ical-master
+  'status "CANCEL")
 (define-button-type 'mew-ical-open-calendar
   'action #'mew-ical-button-handler-open-calendar)
 
