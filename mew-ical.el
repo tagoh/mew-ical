@@ -193,7 +193,7 @@
 	     (afile (if (not (string= (button-get button 'status) "CANCEL"))
 			(mew-make-temp-name)))
 	     (buf (generate-new-buffer " *Mew iCal Response*"))
-	     (need-reply (not afile))
+	     (need-reply (stringp afile))
 	     (aalist (button-get button 'attendance))
 	     (oalist (button-get button 'organizer))
 	     (summary (button-get button 'summary))
