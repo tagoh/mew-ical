@@ -186,7 +186,8 @@
 		      (concat (match-string 1 substr) "\n")
 		    ""))
 	     (rfile (mew-make-temp-name))
-	     (afile (mew-make-temp-name))
+	     (afile (if (not (string= (button-get button 'status) "CANCEL"))
+			(mew-make-temp-name)))
 	     (buf (generate-new-buffer " *Mew iCal Response*"))
 	     (aalist (button-get button 'attendance))
 	     (oalist (button-get button 'organizer))
@@ -195,24 +196,27 @@
 	     (begin (button-get button 'begin))
 	     (end (button-get button 'end)))
 	(set-buffer buf)
-	(insert "BEGIN:VCALENDAR\n"
-		(format "PRODID:-//Mew//Mew iCal %s//EN\n" mew-ical-version)
-		"VERSION:2.0\n"
-		"METHOD:REPLY\n"
-		"BEGIN:VEVENT\n"
-		(format "ATTENDEE;PARTSTAT=%s:MAILTO:%s\n"
-			status (cadr (assoc 'email aalist)))
-		(format "DTSTAMP:%s\n"
-			(format-time-string "%Y%m%dT%H%M%SZ" (current-time)))
-		(format "ORGANIZER:%s\n"
-			(cadr (assoc 'email oalist)))
-		recurrence
-		uid
-		"SEQUENCE:0\n"
-		"END:VEVENT\n"
-		"END:VCALENDAR\n")
-	(mew-flet
-	 (write-region (point-min) (point-max) afile nil 'no-msg))
+	(if afile
+	    (progn
+	      (insert "BEGIN:VCALENDAR\n"
+		      (format "PRODID:-//Mew//Mew iCal %s//EN\n" mew-ical-version)
+		      "VERSION:2.0\n"
+		      "METHOD:REPLY\n"
+		      "BEGIN:VEVENT\n"
+		      (format "ATTENDEE;PARTSTAT=%s:MAILTO:%s\n"
+			      status (cadr (assoc 'email aalist)))
+		      (format "DTSTAMP:%s\n"
+			      (format-time-string "%Y%m%dT%H%M%SZ" (current-time)))
+		      (format "ORGANIZER:%s\n"
+			      (cadr (assoc 'email oalist)))
+		      recurrence
+		      uid
+		      "SEQUENCE:0\n"
+		      "END:VEVENT\n"
+		      "END:VCALENDAR\n")
+	      (mew-flet
+	       (write-region (point-min) (point-max) afile nil 'no-msg))
+	      ))
 	(kill-buffer buf)
 	(save-excursion
 	  (set-buffer cache)
