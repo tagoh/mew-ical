@@ -39,7 +39,7 @@
 (require 'browse-url)
 
 (defvar mew-ical-prog-icalendar 'mew-ical-mime-text/calendar)
-(defvar mew-ical-version "0.3")
+(defvar mew-ical-version "0.4")
 (defvar mew-ical-hash (make-hash-table :weakness 'key))
 
 (defgroup mew-ical nil
