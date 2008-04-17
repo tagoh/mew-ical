@@ -228,10 +228,11 @@
 	  (mew-flet
 	   (write-region begin end rfile nil 'no-msg)))
 	;; register ical to diary first.
-	(unless diary-file
-	  (setq diary-file
-		(read-file-name "Add appointment to this diary file: ")))
-	(icalendar-import-file rfile diary-file)
+	(save-window-excursion
+	  (unless diary-file
+	    (setq diary-file
+		  (read-file-name "Add appointment to this diary file: ")))
+	  (icalendar-import-file rfile diary-file))
 	(if (and (stringp mew-ical-server-uri)
 		 (stringp mew-ical-user))
 	    (mew-ical-send-ical oalist
