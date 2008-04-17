@@ -1,3 +1,7 @@
+2008-04-17  Akira TAGOH  <akira@tagoh.org>
+
+	* mew-ical.el (mew-ical-button-handler): Import ical to diary.
+
 2008-02-07  Akira TAGOH  <akira@tagoh.org>
 
 	* mew-ical.el (mew-ical-mime-text/calendar): Add a support for CANCEL method.
