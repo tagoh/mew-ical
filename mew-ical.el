@@ -37,6 +37,7 @@
 ;;; Code:
 
 (require 'browse-url)
+(require 'calendar)
 
 (defvar mew-ical-prog-icalendar 'mew-ical-mime-text/calendar)
 (defvar mew-ical-version "0.4")
@@ -103,14 +104,14 @@
 			 "curl"
 			 (append opts extraopts))))
     (puthash process
-	     (copy-tree (list `(request . ,file)
-			      `(reply . ,actionfile)
-			      `(organizer . ,organizer)
-			      `(summary . ,summary)
-			      `(result . t)
-			      `(status . ,status)
-			      `(need-reply . ,need-reply)
-			      `(opts . ,extraopts)))
+	     (copy-tree `((request . ,file)
+			  (reply . ,actionfile)
+			  (organizer . ,organizer)
+			  (summary . ,summary)
+			  (result . t)
+			  (status . ,status)
+			  (need-reply . ,need-reply)
+			  (opts . ,extraopts)))
 	     mew-ical-hash)
     (set-process-filter process 'mew-ical-uploading-filter)
     (set-process-sentinel process 'mew-ical-uploading-sentinel)
@@ -219,13 +220,13 @@
 		      "SEQUENCE:0\n"
 		      "END:VEVENT\n"
 		      "END:VCALENDAR\n")
-	      (mew-flet
+	      (mew-frwlet 'binary 'utf-8
 	       (write-region (point-min) (point-max) afile nil 'no-msg))
 	      ))
 	(kill-buffer buf)
 	(save-excursion
 	  (set-buffer cache)
-	  (mew-flet
+	  (mew-frwlet 'binary 'utf-8
 	   (write-region begin end rfile nil 'no-msg)))
 	;; register ical to diary first.
 	(save-window-excursion
@@ -403,7 +404,7 @@
 			 (append one `((attendees . (,val)))))))
 	  (t (if map
 		 (progn
-		   (setcdr map two)
+		   (setcdr map val)
 		   one)
 	       (append one two))))
       one)))
